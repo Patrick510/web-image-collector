@@ -21,18 +21,19 @@ def puxa_main_image_url():
 
         soup = BeautifulSoup(html, 'html.parser')
 
-        main_img_div = soup.find('div', class_='main-img')
+        # Encontra a div que contém a imagem principal com a classe 'lg-current'
+        main_img_div = soup.find('div', class_='lg-item lg-loaded lg-complete lg-zoomable lg-current')
 
         if main_img_div:
-            img_tag = main_img_div.find('img')
+            img_tag = main_img_div.find('img', class_='lg-object lg-image')
             if img_tag:
                 main_image_url = img_tag.get('src')
                 print(f"URL da imagem principal: {main_image_url}")
                 return main_image_url
             else:
-                print("Nenhuma imagem encontrada na div 'main-img'.")
+                print("Nenhuma imagem encontrada na div com classe 'lg-current'.")
         else:
-            print("Div 'main-img' não encontrada.")
+            print("Div da imagem principal com classe 'lg-current' não encontrada.")
     except Exception as e:
         print(f"Erro ao tentar ler a página: {e}")
 
