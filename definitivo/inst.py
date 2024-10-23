@@ -26,26 +26,25 @@ def chama_pagina(url):
     time.sleep(3)
 
 def carrega_imagens():
-    for i in range(1, 10):
+    for i in range(1, 15):
         try:
             proximo_botao = WebDriverWait(navegador, 10).until(
                 EC.element_to_be_clickable((By.XPATH, "/html/body/div[9]/div/div[3]/button[2]"))
             )
             proximo_botao.click()
-            time.sleep(1)
+            time.sleep(2)
         except Exception as e:
             print(f"Erro ao clicar no botão: {e}")
 
 def gera_html_e_coleta_imagens():
-    # Lista de XPaths das divs que você quer pegar
+    i = input("imagem interior: ")
     xpaths = [
         '/html/body/div[9]/div/div[1]/div[1]',  # FRENTE
         '/html/body/div[9]/div/div[1]/div[2]',  # LATERAL
-        '/html/body/div[9]/div/div[1]/div[8]',  # INTERIOR
-        '/html/body/div[9]/div/div[1]/div[4]'   # TRASEIRA
+        f'/html/body/div[9]/div/div[1]/div[{i}]',  # INTERIOR
+        '/html/body/div[9]/div/div[1]/div[9]'   # TRASEIRA
     ]
 
-    # Inicializa uma lista para armazenar as URLs das imagens
     urls_imagens = []
 
     for xpath in xpaths:
@@ -53,53 +52,56 @@ def gera_html_e_coleta_imagens():
             div_element = WebDriverWait(navegador, 10).until(
                 EC.presence_of_element_located((By.XPATH, xpath))
             )
-            # Coletando URLs das imagens dentro da div
             imagens = div_element.find_elements(By.TAG_NAME, "img")
             urls = [img.get_attribute("src") for img in imagens]
-            urls_imagens.append(urls)  # Adiciona as URLs ao array
-            
+            urls_imagens.append(urls)  
         except Exception as e:
             print(f"Erro ao encontrar a div com o XPath {xpath}: {e}")
-            urls_imagens.append([])  # Adiciona uma lista vazia se ocorrer erro
+            urls_imagens.append([]) 
 
-    # Salva o conteúdo HTML em um arquivo
     with open("div_content.html", "w", encoding="utf-8") as file:
         file.write("\n".join([str(url) for url in urls_imagens]))
 
     print("HTML das divs foi salvo em 'div_content.html'.")
 
-    return urls_imagens  # Retorna as URLs coletadas
+    return urls_imagens 
 
 def salvar_em_excel(urls):
     colunas = ["Foto Frontal", "Foto Lateral", "Foto Interior", "Foto Traseira"]
 
-    # Cria ou lê o arquivo Excel existente
     if os.path.exists("fotos_veiculos.xlsx"):
         df = pd.read_excel("fotos_veiculos.xlsx")
     else:
         df = pd.DataFrame(columns=colunas)
 
-    # Adiciona as URLs como nova linha no DataFrame
     novo_dado = pd.DataFrame([urls], columns=colunas)
     df = pd.concat([df, novo_dado], ignore_index=True)
 
-    # Salva o DataFrame no arquivo Excel
     df.to_excel("fotos_veiculos.xlsx", index=False)
     print("Planilha atualizada com sucesso!")
 
-# Chame as funções na ordem desejada
-url = "https://alvoradaveiculos.com.br/carros/jeep/compass-limited-2-0-4x4-diesel-16v-aut/2021/354228"
-chama_pagina(url)
-carrega_imagens()
-urls = gera_html_e_coleta_imagens()
+while True:
+    url = input("Insira a URL do carro (ou pressione Enter para sair): ")
+    
+    if url == '':
+        break  # Sai do loop se a entrada for vazia
+    
+    if url == '0':
+        # Adiciona uma linha em branco ou com "-" na planilha
+        salvar_em_excel(["-", "-", "-", "-"])  # Adiciona uma linha com "-"
 
-# Coleta as URLs e salva no Excel
-urls_planilha = []
-if urls:  # Verifica se há URLs coletadas
-    for i in range(4):  # As divs são 4
-        urls_planilha.append(urls[i][0] if urls[i] else "")  # Adiciona a URL ou uma string vazia
+    else:
+        print(f"Processando URL: {url}")
+        chama_pagina(url)
+        carrega_imagens()
+        urls = gera_html_e_coleta_imagens()
 
-salvar_em_excel(urls_planilha)
+        urls_planilha = []
+        if urls:  # Verifica se há URLs coletadas
+            for i in range(4):  # As divs são 4
+                urls_planilha.append(urls[i][0] if urls[i] else "")  # Adiciona a URL ou uma string vazia
+
+        salvar_em_excel(urls_planilha)
 
 input("Pressione Enter para fechar o navegador...")
 navegador.quit()
