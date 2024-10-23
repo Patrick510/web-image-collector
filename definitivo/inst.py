@@ -37,12 +37,11 @@ def carrega_imagens():
             print(f"Erro ao clicar no botão: {e}")
 
 def gera_html_e_coleta_imagens():
-    i = input("imagem interior: ")
     xpaths = [
         '/html/body/div[9]/div/div[1]/div[1]',  # FRENTE
         '/html/body/div[9]/div/div[1]/div[2]',  # LATERAL
-        f'/html/body/div[9]/div/div[1]/div[{i}]',  # INTERIOR
-        '/html/body/div[9]/div/div[1]/div[9]'   # TRASEIRA
+        '/html/body/div[9]/div/div[1]/div[5]',  # INTERIOR
+        '/html/body/div[9]/div/div[1]/div[3]'   # TRASEIRA
     ]
 
     urls_imagens = []
