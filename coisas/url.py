@@ -21,23 +21,27 @@ def puxa_main_image_url():
 
         soup = BeautifulSoup(html, 'html.parser')
 
-        # Encontra a div que contém a imagem principal com a classe 'lg-current'
-        main_img_div = soup.find('div', class_='lg-item lg-loaded lg-complete lg-zoomable lg-current')
+        # Encontra todas as divs com a classe 'lg-item'
+        items = soup.find_all('div', class_='lg-item')
 
-        if main_img_div:
-            img_tag = main_img_div.find('img', class_='lg-object lg-image')
-            if img_tag:
-                main_image_url = img_tag.get('src')
-                print(f"URL da imagem principal: {main_image_url}")
-                return main_image_url
-            else:
-                print("Nenhuma imagem encontrada na div com classe 'lg-current'.")
-        else:
-            print("Div da imagem principal com classe 'lg-current' não encontrada.")
+        # Procura pela div que contém a classe 'lg-current'
+        for item in items:
+            if 'lg-current' in item.get('class', []):
+                img_tag = item.find('img', class_='lg-object lg-image')
+                if img_tag:
+                    main_image_url = img_tag.get('src')
+                    print(f"URL da imagem principal: {main_image_url}")
+                    return main_image_url
+                else:
+                    print("Nenhuma imagem encontrada na div 'lg-current'.")
+                    return None
+
+        print("Div com classe 'lg-current' não encontrada.")
     except Exception as e:
         print(f"Erro ao tentar ler a página: {e}")
 
 # URL: https://alvoradaveiculos.com.br/carros/jeep/compass-limited-2-0-4x4-diesel-16v-aut/2021/354228
+# URL2: https://alvoradaveiculos.com.br/carros/jeep/compass-limited-2-0-4x4-diesel-16v-aut/2021/354228#lg=1&slide=0
 url = input("Digite a URL da página que deseja salvar: ")
 puxa_pagina(url)
 imagem = puxa_main_image_url()
