@@ -32,7 +32,7 @@ def carrega_imagens():
                 EC.element_to_be_clickable((By.XPATH, "/html/body/div[9]/div/div[3]/button[2]"))
             )
             proximo_botao.click()
-            time.sleep(2)
+            time.sleep(1)
         except Exception as e:
             print(f"Erro ao clicar no botão: {e}")
 
